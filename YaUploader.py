@@ -17,7 +17,11 @@ class YaUploader:
         url = "https://cloud-api.yandex.net/v1/disk/resources"
         headers = self.get_headers()
         params = {'path': dir_name}
-        requests.put(url, headers=headers, params=params)
+        try:
+            response = requests.put(url, headers=headers, params=params)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as error:
+            raise SystemExit(error)
 
     def upload_photos_to_disk(self, path_to_file, files_to_upload):
         downloads_photos_info = []
@@ -31,7 +35,13 @@ class YaUploader:
             time.sleep(0.3)
             params = {'path': f'{path_to_file}/{photo_name}',
                       'url': photo_url[0]}
-            requests.post(url=url, params=params, headers=headers)
+            try:
+                response = requests.post(url=url, params=params,
+                                         headers=headers)
+                response.raise_for_status()
+            except requests.exceptions.RequestException as error:
+                raise SystemExit(error)
+
         print('photos uploaded')
         return get_photos_info_json(downloads_photos_info)
 
